@@ -116,7 +116,7 @@ const Home = () => {
         return;
       }
       try {
-        const response = await axios.post('http://localhost:3200/api/upload', { content: letter });
+        const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/upload`, { content: letter });
         if (response.status === 200) {
           setMessage('Letter uploaded to Google Drive successfully!');
           setLetter('');
@@ -140,9 +140,9 @@ const Home = () => {
         try {
           let response;
           if (currentUser.googleAuth) {
-            response = await axios.get('http://localhost:3200/api/list-files-oauth');
+            response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/list-files-oauth`);
           } else {
-            response = await axios.get('http://localhost:3200/api/list-files', {
+            response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/list-files`, {
               headers: {
                 Authorization: `Bearer ${currentUser.accessToken}`
               }

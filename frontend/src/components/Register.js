@@ -10,7 +10,7 @@ const Register = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        await axios.post('http://localhost:3200/auth/registration',{name, email, password})
+        await axios.post(`${process.env.REACT_APP_BASE_URL}/auth/registration`,{name, email, password})
         .then(response=>{
             if(response.status){
                 navigate("/");
