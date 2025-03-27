@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import axios from 'axios';
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-
+import { REACT_APP_BASE_URL } from "../baseurl";
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
@@ -28,7 +28,7 @@ export const AuthContextProvider = ({ children }) => {
                 }
             } else {
                 try {
-                    const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/auth/check-session`, {
+                    const response = await axios.get(`${REACT_APP_BASE_URL}/auth/check-session`, {
                         withCredentials: true
                     });
                     if (response.data.user) {
@@ -49,7 +49,7 @@ export const AuthContextProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/auth/login`, credentials);
+            const res = await axios.post(`${REACT_APP_BASE_URL}/auth/login`, credentials);
             setCurrentUser({ 
                 ...res.data.user, 
                 accessToken: res.data.token,
@@ -65,11 +65,21 @@ export const AuthContextProvider = ({ children }) => {
     const logout = async () => {
         try {
             const auth = getAuth();
+
             if (currentUser?.googleAuth) {
                 await signOut(auth);
+                await axios.post(`${REACT_APP_BASE_URL}/logout`);
             }
-            await axios.post(`${process.env.REACT_APP_BASE_URL}/auth/logout`);
+            else{
+                await axios.post(`${REACT_APP_BASE_URL}/auth/logout`);
+            }
+
+            localStorage.clear();
+            sessionStorage.clear();
+
             setCurrentUser(null);
+
+            alert("Logged out successfully");
         } catch (err) {
             console.error("Logout error:", err);
         }

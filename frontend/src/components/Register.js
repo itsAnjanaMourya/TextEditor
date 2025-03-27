@@ -2,6 +2,7 @@ import React from 'react'
 import axios from "axios";
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { REACT_APP_BASE_URL } from '../baseurl';
 const Register = () => {
     const navigate = useNavigate();
     const [name, setName] = useState("");
@@ -10,7 +11,7 @@ const Register = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        await axios.post(`${process.env.REACT_APP_BASE_URL}/auth/registration`,{name, email, password})
+        await axios.post(`${REACT_APP_BASE_URL}/auth/registration`,{name, email, password})
         .then(response=>{
             if(response.status){
                 navigate("/");

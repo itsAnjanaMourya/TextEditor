@@ -1,4 +1,4 @@
-# text_editor
+# TextEditor
 
 ## Overview
 This app is a text editor with Google authentication that allows users to create, save, and manage drafts locally or upload them to Google Drive. It supports rich text formatting and ensures drafts persist across sessions using local storage or backend integration.

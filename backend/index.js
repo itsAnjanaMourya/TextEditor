@@ -68,9 +68,17 @@ app.get(
   }
 );
 
-app.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
+// app.get("/logout", (req, res) => {
+//   res.clearCookie("token");
+//   res.redirect("/");
+// });
+
+app.post('/logout', (req, res) => {
+  
+   res.redirect("/");
+    res.clearCookie('session'); 
+    req.session.destroy(); 
+    res.status(200).send({ message: 'Logged out successfully' });
 });
 
 app.get("/user", (req, res) => {

@@ -1,12 +1,12 @@
-import mongoose from "mongoose"
-const  UserSchema=mongoose.Schema({
-    username:String,
-    email:String,
-    password:String,
-   
+import mongoose from 'mongoose';
 
-},{
-    versionKey:false
-})
-const userModel=mongoose.model("user",UserSchema)
-export default userModel;
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String },
+    googleAccessToken: { type: String },
+    googleRefreshToken: { type: String },
+    googleDriveFolderId: { type: String },
+});
+
+export default mongoose.model('User', userSchema);

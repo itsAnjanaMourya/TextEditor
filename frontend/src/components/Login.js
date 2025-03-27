@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useContext } from 'react';
@@ -11,6 +11,7 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState({ email: "", password: "" })
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,19 +43,21 @@ const Login = () => {
 
     }
 
-    const handleLogin = () => {
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                setUser(result.user);
-                // setIsAuthenticated(true)
-                result.user.getIdToken().then((token) => {
-                    // setCurrentUser({ ...result.user, accessToken: token, googleAuth: true });
-                });
+    const handleLogin = async () => {
+        if (isLoggingIn) return; // Prevent multiple popups
+        setIsLoggingIn(true);
 
-                console.log("User logged in:", result.user);
-                result.user && navigate("/home");
-            })
-            .catch((error) => console.log("Error:", error));
+        try {
+            const result = await signInWithPopup(auth, provider);
+            setUser(result.user);
+            console.log(user)
+            console.log("User logged in:", result.user);
+            result.user && navigate("/home");
+        } catch (error) {
+            console.error("Error during Google login:", error);
+        } finally {
+            setIsLoggingIn(false);
+        }
     };
 
     return (

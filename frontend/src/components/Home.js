@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-
+import { REACT_APP_BASE_URL } from '../baseurl';
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const [letter, setLetter] = useState('');
@@ -116,12 +116,13 @@ const Home = () => {
         return;
       }
       try {
-        const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/upload`, { content: letter });
+        const response = await axios.post(`${REACT_APP_BASE_URL}/api/upload`, { content: letter});
         if (response.status === 200) {
           setMessage('Letter uploaded to Google Drive successfully!');
           setLetter('');
           setCurrentDraft(null);
           setTimeout(() => setMessage(''), 3000);
+          loadDrafts();
         }
       } catch (error) {
         console.error('Error uploading letter:', error);
@@ -129,6 +130,13 @@ const Home = () => {
         setTimeout(() => setMessage(''), 3000);
       }
     };
+
+    const handleFetchDraft = async () => {
+      if (!currentUser) {
+        loadDrafts();
+      }
+    }
+
   
     useEffect(() => {
       const fetchSavedLetters = async () => {
@@ -136,40 +144,41 @@ const Home = () => {
           console.log('No user logged in - showing local drafts only');
           return;
         }
-  
+    
         try {
-          let response;
-          if (currentUser.googleAuth) {
-            response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/list-files-oauth`);
-          } else {
-            response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/list-files`, {
-              headers: {
-                Authorization: `Bearer ${currentUser.accessToken}`
-              }
-            });
-          }
-          const cloudDrafts = response.data.files.map(file => ({
-            id: file.id,
-            name: file.name,
-            webViewLink: file.webViewLink,
-            lastModified: file.modifiedTime
-          }));
-  
-          setDrafts(prevDrafts => {
-            const uniqueLocalDrafts = prevDrafts.filter(localDraft => 
-              !cloudDrafts.some(cloudDraft => cloudDraft.id === localDraft.id)
-            );
-            return [...cloudDrafts, ...uniqueLocalDrafts];
-          });
+          const endpoint = currentUser.googleAuth 
+            ? '/api/list-files-oauth' 
+            : '/api/list-files';
+          
+          const config = currentUser.googleAuth ? {} : {
+            headers: { Authorization: `Bearer ${currentUser.accessToken}` }
+          };
+    
+          const response = await axios.get(`${REACT_APP_BASE_URL}${endpoint}`, config);
+          
+          setDrafts(prev => [
+            ...(response.data.files || []).map(file => ({
+              id: file.id,
+              name: file.name,
+              webViewLink: file.webViewLink,
+              lastModified: file.modifiedTime,
+              source: 'cloud'
+            })),
+            ...prev.filter(d => d.source !== 'cloud')
+          ]);
+          
         } catch (error) {
-          console.error('Error fetching cloud drafts:', error);
-          setMessage('Failed to fetch cloud drafts. Showing local drafts only.');
+          console.error('Fetch error:', {
+            message: error.message,
+            response: error.response?.data
+          });
+          setMessage(error.response?.data?.error || 'Failed to sync cloud drafts');
         }
       };
-  
+    
       fetchSavedLetters();
     }, [currentUser]);
-  
+    
     useEffect(() => {
       console.log('Current User:', currentUser);
     }, [currentUser]);
@@ -305,6 +314,19 @@ const Home = () => {
         >
           Upload to Google Drive
         </button>
+        <button
+            onClick={handleFetchDraft}
+            style={{
+              padding: '8px 16px',
+              background: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Fetch Drafts
+          </button>
       </div>
 
       {message && (
@@ -341,7 +363,6 @@ const Home = () => {
               >
                 <div style={{
                   fontSize: '14px',
-                  color: '#666',
                   marginBottom: '10px',
                   color: 'black'
                 }}>
