@@ -3,8 +3,7 @@
 ## Overview
 This app is a text editor with Google authentication that allows users to create, save, and manage drafts locally or upload them to Google Drive. It supports rich text formatting and ensures drafts persist across sessions using local storage or backend integration.
 
-# Features
-
+## Features
 - Google authentication for secure login.
 - Create, save, and manage drafts locally.
 - Upload drafts to Google Drive for cloud storage.
@@ -57,3 +56,5 @@ Contributions are welcome! Please follow these steps:
     ```
 5. Open a pull request.
 
+## Preview Link to the Website 🚀  
+[![Watch the Video](frontend/public/TextEditor.png)](https://drive.google.com/drive/u/0/folders/1AyBMY_BlhmErXq6HVCklnGpqeQGDF_Kv)
